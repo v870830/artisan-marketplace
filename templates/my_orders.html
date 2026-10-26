@@ -1,0 +1,203 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Orders | Artisan Marketplace</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #fffaf3;
+            color: #4b2e1f;
+        }
+
+        .orders-container {
+            max-width: 1100px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        .orders-container h1 {
+            color: #8b4513;
+            margin-bottom: 10px;
+        }
+
+        .orders-description {
+            color: #765b49;
+            margin-bottom: 25px;
+        }
+
+        .order-card {
+            background: white;
+            border: 1px solid #ead8c5;
+            border-radius: 12px;
+            padding: 22px;
+            margin-bottom: 18px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .order-card h2 {
+            margin-top: 0;
+            color: #8b4513;
+        }
+
+        .order-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 15px;
+            margin-top: 18px;
+        }
+
+        .detail-box {
+            background: #fff5e8;
+            padding: 12px;
+            border-radius: 8px;
+        }
+
+        .detail-box strong {
+            display: block;
+            margin-bottom: 7px;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 7px 12px;
+            border-radius: 20px;
+            background: #fff0c2;
+            color: #795600;
+            font-weight: bold;
+        }
+
+        .status-delivered {
+            background: #d9f5df;
+            color: #17652a;
+        }
+
+        .status-processing {
+            background: #dcecff;
+            color: #174f91;
+        }
+
+        .status-cancelled {
+            background: #ffe0e0;
+            color: #a32020;
+        }
+
+        .empty-orders {
+            background: white;
+            padding: 35px 20px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid #ead8c5;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 11px 18px;
+            background: #a0522d;
+            color: white;
+            text-decoration: none;
+            border-radius: 7px;
+        }
+
+        .back-link:hover {
+            background: #783b20;
+        }
+
+        @media (max-width: 600px) {
+            .orders-container {
+                margin: 20px auto;
+                padding: 12px;
+            }
+
+            .order-card {
+                padding: 16px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <main class="orders-container">
+        <h1>My Orders</h1>
+        <p class="orders-description">
+            View the products you ordered, their prices, and current order status.
+        </p>
+
+        {% if orders %}
+            {% for order in orders %}
+                <article class="order-card">
+                    <h2>{{ order["product_name"] }}</h2>
+
+                    <p>Order ID: #{{ order["id"] }}</p>
+                    <p>Seller: {{ order["artisan_name"] }}</p>
+
+                    <div class="order-details">
+                        <div class="detail-box">
+                            <strong>Quantity</strong>
+                            {{ order["quantity"] }}
+                        </div>
+
+                        <div class="detail-box">
+                            <strong>Total Price</strong>
+                            ₹{{ "%.2f"|format(order["total_price"]) }}
+                        </div>
+
+                        <div class="detail-box">
+                            <strong>Order Date</strong>
+                            {{ order["created_at"] }}
+                        </div>
+
+                        
+<div class="detail-box">
+    <strong>Order Status</strong>
+
+    {% set status_class = "status-" + order["status"]|lower %}
+
+    <span class="status {{ status_class }}">
+        {{ order["status"] }}
+    </span>
+
+    {% if order["status"] in ["Pending", "Processing"] %}
+        <form
+            action="{{ url_for('cancel_order', order_id=order['id']) }}"
+            method="POST"
+            onsubmit="return confirm('Are you sure you want to cancel this order?');"
+            style="margin-top: 12px;"
+        >
+            <button
+                type="submit"
+                style="background: #b42318; color: white; border: none;
+                       padding: 9px 12px; border-radius: 6px; cursor: pointer;"
+            >
+                Cancel Order
+            </button>
+        </form>
+    {% endif %}
+</div>
+
+
+                    </div>
+                </article>
+            {% endfor %}
+        {% else %}
+            <div class="empty-orders">
+                <h2>You haven't placed any orders yet.</h2>
+                <p>Explore the marketplace and find something you love!</p>
+                <a class="back-link" href="{{ url_for('buyer') }}">
+                    Browse Products
+                </a>
+            </div>
+        {% endif %}
+
+        <a class="back-link" href="{{ url_for('home') }}">
+            Back to Marketplace
+        </a>
+    </main>
+</body>
+</html>

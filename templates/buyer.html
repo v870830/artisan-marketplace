@@ -1,0 +1,485 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Buyer | Artisan Marketplace</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+<style>
+    /* Buyer page navbar */
+    header {
+        background: #fffaf4;
+        border-bottom: 1px solid #ead8c5;
+        box-shadow: 0 3px 12px rgba(70, 40, 20, 0.08);
+        padding: 16px 5%;
+    }
+
+    header .container {
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    header h1 {
+        color: #8b4513;
+        font-size: 28px;
+        margin-bottom: 16px;
+    }
+
+    header nav {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    header nav a {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10px 15px;
+        border-radius: 8px;
+        color: #68402a;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 600;
+        transition: background 0.2s, color 0.2s;
+    }
+
+    header nav a:hover {
+        background: #f4e3d1;
+        color: #8b4513;
+    }
+
+    header nav a.active {
+        background: #a84e16;
+        color: #ffffff;
+    }
+
+    header nav .nav-link {
+        color: #68402a;
+        font-weight: 600;
+    }
+
+    header nav select {
+        padding: 10px 12px;
+        border: 1px solid #e4cbb4;
+        border-radius: 8px;
+        background: #ffffff;
+        color: #68402a;
+        font-size: 14px;
+        cursor: pointer;
+    }
+
+    @media (max-width: 700px) {
+        header {
+            padding: 15px 4%;
+        }
+
+        header h1 {
+            font-size: 23px;
+        }
+
+        header nav {
+            gap: 6px;
+        }
+
+        header nav a {
+            padding: 9px 11px;
+            font-size: 13px;
+        }
+    }
+
+    .product-preview-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.product-preview-content {
+    background: #fffaf4;
+    border-radius: 14px;
+    padding: 25px;
+    width: 100%;
+    max-width: 900px;
+    max-height: 90vh;
+    overflow-y: auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 25px;
+    position: relative;
+}
+
+.product-preview-content > img {
+    width: 100%;
+    max-height: 500px;
+    object-fit: contain;
+    border-radius: 10px;
+    background: white;
+}
+
+.preview-details h2 {
+    color: #8b4513;
+    margin-bottom: 12px;
+}
+
+.preview-details h3 {
+    color: #b95418;
+    margin-bottom: 20px;
+}
+
+.preview-details p {
+    margin-bottom: 12px;
+    line-height: 1.6;
+}
+
+.preview-close {
+    position: absolute;
+    top: 8px;
+    right: 12px;
+    border: none;
+    background: #8b4513;
+    color: white;
+    font-size: 28px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 1;
+}
+
+.preview-trigger {
+    cursor: zoom-in;
+}
+
+@media (max-width: 650px) {
+    .product-preview-content {
+        grid-template-columns: 1fr;
+        padding: 18px;
+        gap: 15px;
+    }
+
+    .product-preview-content > img {
+        max-height: 300px;
+    }
+}
+</style>
+
+
+</head>
+
+<body>
+
+    <header>
+        <div class="container">
+
+            <h1>Artisan Marketplace</h1>
+
+            <nav>
+                <a href="{{ url_for('home') }}"
+                   data-en="Marketplace"
+                   data-hi="बाज़ार">Marketplace</a>
+
+                <a href="{{ url_for('artisan') }}"
+                   data-en="Artisan Studio"
+                   data-hi="कारीगर स्टूडियो">Artisan Studio</a>
+
+                <a href="{{ url_for('buyer') }}"
+                   class="active"
+                   data-en="Buyer"
+                   data-hi="खरीदार">Buyer</a>
+
+                <a href="{{ url_for('orders') }}"
+                   data-en="Orders"
+                   data-hi="ऑर्डर">Orders</a>
+
+                {% if session.get('user_id') %}
+
+                    <span class="nav-link">
+                        Hi, {{ session.get('user_name') }}
+                    </span>
+
+                    <a href="{{ url_for('logout') }}"
+                       class="nav-link"
+                       data-en="Logout"
+                       data-hi="लॉग आउट">Logout</a>
+
+                {% else %}
+
+                    <a href="{{ url_for('register') }}"
+                       class="nav-link"
+                       data-en="Register"
+                       data-hi="रजिस्टर">Register</a>
+
+                    <a href="{{ url_for('login') }}"
+                       class="nav-link"
+                       data-en="Login"
+                       data-hi="लॉग इन">Login</a>
+
+                {% endif %}
+
+                <select id="languageSelect" aria-label="Select language">
+                    <option value="en">English</option>
+                    <option value="hi">हिन्दी</option>
+                </select>
+
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+
+        <section class="section">
+            <h2 data-en="Explore Handmade Products"
+                data-hi="हस्तनिर्मित उत्पाद देखें">
+                Explore Handmade Products
+            </h2>
+
+            <p data-en="Discover unique products created by talented artisans."
+               data-hi="प्रतिभाशाली कारीगरों द्वारा बनाए गए अनोखे उत्पाद खोजें।">
+                Discover unique products created by talented artisans.
+            </p>
+        </section>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash-message {{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <section class="product-section">
+
+            {% if products %}
+
+                <div class="product-grid">
+
+                    {% for product in products %}
+
+                        <article class="product-card">
+
+                            {% if product['image'] %}
+                              
+<img
+    src="{{ product['image'] }}"
+    alt="{{ product['name'] }}"
+    class="product-image preview-trigger"
+    data-name="{{ product['name'] }}"
+    data-price="{{ '%.2f'|format(product['price']) }}"
+    data-category="{{ product['category'] }}"
+    data-artisan="{{ product['artisan'] }}"
+    data-location="{{ product['location'] }}"
+    data-description="{{ product['description'] }}"
+    title="Double-click to view product details"
+    tabindex="0"
+    role="button"
+    aria-label="View details for {{ product['name'] }}"
+>
+
+
+                            {% else %}
+                                <div class="product-image">
+                                    Product image unavailable
+                                </div>
+                            {% endif %}
+
+                            <div class="product-info">
+
+                                <h3>{{ product['name'] }}</h3>
+
+                                <p>
+                                    <strong>Category:</strong>
+                                    {{ product['category'] }}
+                                </p>
+
+                                <p>
+                                    <strong>Price:</strong>
+                                    ₹{{ "%.2f"|format(product['price']) }}
+                                </p>
+
+                                <p>
+                                    <strong>Artisan:</strong>
+                                    {{ product['artisan'] }}
+                                </p>
+
+                                <p>
+                                    <strong>Location:</strong>
+                                    {{ product['location'] }}
+                                </p>
+
+                                <p>{{ product['description'] }}</p>
+
+                                <form
+                                    action="{{ url_for('place_order', product_id=product['id']) }}"
+                                    method="POST"
+                                >
+
+                                    <div class="form-group">
+                                        <label for="buyer_name_{{ product['id'] }}">
+                                            Your Name
+                                        </label>
+
+                                        <input
+                                            type="text"
+                                            id="buyer_name_{{ product['id'] }}"
+                                            name="buyer_name"
+                                            placeholder="Enter your name"
+                                            required
+                                        >
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="quantity_{{ product['id'] }}">
+                                            Quantity
+                                        </label>
+
+                                        <input
+                                            type="number"
+                                            id="quantity_{{ product['id'] }}"
+                                            name="quantity"
+                                            value="1"
+                                            min="1"
+                                            max="100"
+                                            required
+                                        >
+                                    </div>
+
+                                    <button type="submit"
+                                            class="btn btn-primary">
+                                        Place Order
+                                    </button>
+
+                                </form>
+
+                            </div>
+
+                        </article>
+
+                    {% endfor %}
+
+                </div>
+
+            {% else %}
+
+                <div class="empty-state">
+                    <h3>No Products Available Yet</h3>
+
+                    <p>
+                        Artisans have not published any products yet.
+                        Please check again later.
+                    </p>
+
+                    <a href="{{ url_for('home') }}"
+                       class="btn btn-primary">
+                        Explore Marketplace
+                    </a>
+                </div>
+
+            {% endif %}
+
+        </section>
+
+    </main>
+
+    <footer>
+        <p>© 2026 Artisan Marketplace. All rights reserved.</p>
+    </footer>
+
+<div id="productPreviewModal" class="product-preview-modal">
+    <div class="product-preview-content">
+        <button id="closeProductPreview" class="preview-close">&times;</button>
+
+        <img id="previewImage" src="" alt="Product preview">
+
+        <div class="preview-details">
+            <h2 id="previewName"></h2>
+            <h3 id="previewPrice"></h3>
+            <p><strong>Category:</strong> <span id="previewCategory"></span></p>
+            <p><strong>Artisan:</strong> <span id="previewArtisan"></span></p>
+            <p><strong>Location:</strong> <span id="previewLocation"></span></p>
+            <p id="previewDescription"></p>
+        </div>
+    </div>
+</div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
+    <script>
+    const previewModal = document.getElementById("productPreviewModal");
+    const closePreview = document.getElementById("closeProductPreview");
+    const previewImage = document.getElementById("previewImage");
+
+    // Open product gallery on double-click
+    document.querySelectorAll(".preview-trigger").forEach(function (image) {
+        image.addEventListener("dblclick", function () {
+            previewImage.src = image.src;
+            previewImage.alt = image.alt;
+
+            document.getElementById("previewName").textContent =
+                image.dataset.name;
+
+            document.getElementById("previewPrice").textContent =
+                "₹" + image.dataset.price;
+
+            document.getElementById("previewCategory").textContent =
+                image.dataset.category;
+
+            document.getElementById("previewArtisan").textContent =
+                image.dataset.artisan;
+
+            document.getElementById("previewLocation").textContent =
+                image.dataset.location;
+
+            document.getElementById("previewDescription").textContent =
+                image.dataset.description;
+
+            previewModal.style.display = "flex";
+        });
+
+        // Allow keyboard users to open the preview
+        image.addEventListener("keydown", function (event) {
+            if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                image.dispatchEvent(new MouseEvent("dblclick"));
+            }
+        });
+    });
+
+    // Close using the X button
+    closePreview.addEventListener("click", function () {
+        previewModal.style.display = "none";
+        previewImage.src = "";
+    });
+
+    // Close when clicking the dark background
+    previewModal.addEventListener("click", function (event) {
+        if (event.target === previewModal) {
+            previewModal.style.display = "none";
+            previewImage.src = "";
+        }
+    });
+
+    // Close using the Escape key
+    document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape") {
+            previewModal.style.display = "none";
+            previewImage.src = "";
+        }
+    });
+</script>
+
+
+</body>
+</html>

@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Artisan Studio | Artisan Marketplace</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <header class="navbar">
+        <div class="logo">
+            <a href="{{ url_for('home') }}">Artisan Marketplace</a>
+        </div>
+
+    
+<nav>
+    <a href="{{ url_for('home') }}"
+       data-en="Home" data-hi="होम">Home</a>
+
+    <a href="{{ url_for('artisan') }}"
+       data-en="Artisan Studio"
+       data-hi="कारीगर स्टूडियो">Artisan Studio</a>
+
+    <a href="{{ url_for('buyer') }}"
+       data-en="Buyer" data-hi="खरीदार">Buyer</a>
+
+    <a href="{{ url_for('orders') }}"
+       data-en="Orders" data-hi="ऑर्डर">Orders</a>
+
+    {% if session.get('user_id') %}
+
+        <span class="nav-link">
+            Hi, {{ session.get('user_name') }}
+        </span>
+
+        <a href="{{ url_for('logout') }}"
+           class="nav-link"
+           data-en="Logout" data-hi="लॉग आउट">Logout</a>
+
+    {% else %}
+
+        <a href="{{ url_for('register') }}"
+           class="nav-link"
+           data-en="Register" data-hi="रजिस्टर">Register</a>
+
+        <a href="{{ url_for('login') }}"
+           class="nav-link"
+           data-en="Login" data-hi="लॉग इन">Login</a>
+
+    {% endif %}
+
+    <select id="languageSelect" aria-label="Select language">
+        <option value="en">English</option>
+        <option value="hi">हिन्दी</option>
+    </select>
+</nav>
+
+
+    </header>
+
+    <!-- Main Content -->
+    <main class="container">
+
+        <section class="page-heading">
+            <h1 data-en="Artisan Studio" data-hi="कारीगर स्टूडियो">
+                Artisan Studio
+            </h1>
+
+            <p data-en="Share your handmade creations with the world."
+               data-hi="अपनी हस्तनिर्मित कलाकृतियों को दुनिया के साथ साझा करें।">
+                Share your handmade creations with the world.
+            </p>
+        </section>
+
+        <!-- Flash Messages from Flask -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash-message {{ category }}" role="alert">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- Product Upload Form -->
+        <section class="form-section">
+            <h2 data-en="Publish a New Product"
+                data-hi="नया उत्पाद प्रकाशित करें">
+                Publish a New Product
+            </h2>
+
+            <form
+                id="productForm"
+                method="POST"
+                action="{{ url_for('artisan') }}"
+                enctype="multipart/form-data">
+
+                <div class="form-group">
+                    <label for="productName"
+                           data-en="Product Name"
+                           data-hi="उत्पाद का नाम">
+                        Product Name
+                    </label>
+
+                    <input
+                        type="text"
+                        id="productName"
+                        name="name"
+                        placeholder="Enter product name"
+                        required>
+                </div>
+
+                <div class="form-group">
+                    <label for="category"
+                           data-en="Category"
+                           data-hi="श्रेणी">
+                        Category
+                    </label>
+
+                    <select id="category" name="category" required>
+                        <option value=""
+                                data-en="Select Category"
+                                data-hi="श्रेणी चुनें">
+                            Select Category
+                        </option>
+
+                        <option value="Pottery"
+                                data-en="Pottery"
+                                data-hi="मिट्टी के बर्तन">
+                            Pottery
+                        </option>
+
+                        <option value="Handicrafts"
+                                data-en="Handicrafts"
+                                data-hi="हस्तशिल्प">
+                            Handicrafts
+                        </option>
+
+                        <option value="Textiles"
+                                data-en="Textiles"
+                                data-hi="कपड़ा">
+                            Textiles
+                        </option>
+
+                        <option value="Jewellery"
+                                data-en="Jewellery"
+                                data-hi="आभूषण">
+                            Jewellery
+                        </option>
+
+                        <option value="Paintings"
+                                data-en="Paintings"
+                                data-hi="चित्रकारी">
+                            Paintings
+                        </option>
+
+                        <option value="Home Decor"
+                                data-en="Home Decor"
+                                data-hi="घर की सजावट">
+                            Home Decor
+                        </option>
+
+                        <option value="Other"
+                                data-en="Other"
+                                data-hi="अन्य">
+                            Other
+                        </option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="price"
+                           data-en="Price (₹)"
+                           data-hi="कीमत (₹)">
+                        Price (₹)
+                    </label>
+
+                    <input
+                        type="number"
+                        id="price"
+                        name="price"
+                        min="1"
+                        step="0.01"
+                        placeholder="Enter price"
+                        required>
+                </div>
+
+                <div class="form-group">
+                    <label for="location"
+                           data-en="Location"
+                           data-hi="स्थान">
+                        Location
+                    </label>
+
+                    <input
+                        type="text"
+                        id="location"
+                        name="location"
+                        placeholder="Enter your village or city"
+                        required>
+                </div>
+
+                <div class="form-group">
+                    <label for="artisanName"
+                           data-en="Artisan Name"
+                           data-hi="कारीगर का नाम">
+                        Artisan Name
+                    </label>
+
+                    <input
+                        type="text"
+                        id="artisanName"
+                        name="artisan"
+                        placeholder="Enter your name"
+                        required>
+                </div>
+
+                <div class="form-group">
+                    <label for="description"
+                           data-en="Product Description"
+                           data-hi="उत्पाद का विवरण">
+                        Product Description
+                    </label>
+
+                    <textarea
+                        id="description"
+                        name="description"
+                        rows="5"
+                        placeholder="Describe your handmade product"
+                        required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="image"
+                           data-en="Product Image"
+                           data-hi="उत्पाद की तस्वीर">
+                        Product Image
+                    </label>
+
+                    <input
+                        type="file"
+                        id="image"
+                        name="image"
+                        accept=".jpg,.jpeg,.png,.webp"
+                        required>
+
+                    <small
+                        data-en="Allowed formats: JPG, PNG, WebP. Maximum size: 5 MB."
+                        data-hi="मान्य प्रारूप: JPG, PNG, WebP। अधिकतम आकार: 5 MB।">
+                        Allowed formats: JPG, PNG, WebP. Maximum size: 5 MB.
+                    </small>
+
+                    <div id="imagePreviewContainer" hidden>
+                        <img
+                            id="imagePreview"
+                            src=""
+                            alt="Product image preview"
+                            style="max-width: 220px; max-height: 220px; margin-top: 12px; object-fit: contain;">
+
+                        <p data-en="Image Preview"
+                           data-hi="तस्वीर का पूर्वावलोकन">
+                            Image Preview
+                        </p>
+                    </div>
+                </div>
+
+                <button type="submit"
+                        class="btn"
+                        data-en="Publish Product"
+                        data-hi="उत्पाद प्रकाशित करें">
+                    Publish Product
+                </button>
+
+            </form>
+        </section>
+
+        <!-- Products from SQLite Database -->
+        <section class="products-section">
+            <h2 data-en="Published Products"
+                data-hi="प्रकाशित उत्पाद">
+                Published Products
+            </h2>
+
+            <p data-en="Products saved in the marketplace database appear here."
+               data-hi="मार्केटप्लेस डेटाबेस में सेव किए गए उत्पाद यहाँ दिखाई देंगे।">
+                Products saved in the marketplace database appear here.
+            </p>
+
+            <div class="product-grid">
+
+                {% for product in products %}
+
+                    <article class="product-card">
+
+                        {% if product.image %}
+                            <img
+                                src="{{ product.image }}"
+                                alt="{{ product.name }}"
+                                style="width: 100%; height: 220px; object-fit: cover;">
+                        {% endif %}
+
+                        <div class="product-info">
+
+                            <h3>{{ product.name }}</h3>
+
+                            <p>
+                                <strong
+                                    data-en="Category:"
+                                    data-hi="श्रेणी:">
+                                    Category:
+                                </strong>
+                                {{ product.category }}
+                            </p>
+
+                            <p>
+                                <strong
+                                    data-en="Price:"
+                                    data-hi="कीमत:">
+                                    Price:
+                                </strong>
+                                ₹{{ "%.2f"|format(product.price) }}
+                            </p>
+
+                            <p>
+                                <strong
+                                    data-en="Artisan:"
+                                    data-hi="कारीगर:">
+                                    Artisan:
+                                </strong>
+                                {{ product.artisan }}
+                            </p>
+
+                            <p>
+                                <strong
+                                    data-en="Location:"
+                                    data-hi="स्थान:">
+                                    Location:
+                                </strong>
+                                {{ product.location }}
+                            </p>
+
+                            <p>{{ product.description }}</p>
+
+                        </div>
+
+                    </article>
+
+                {% else %}
+
+                    <p data-en="No products have been published yet. Add your first product using the form above."
+                       data-hi="अभी तक कोई उत्पाद प्रकाशित नहीं हुआ है। ऊपर दिए गए फॉर्म से अपना पहला उत्पाद जोड़ें।">
+                        No products have been published yet. Add your first product using the form above.
+                    </p>
+
+                {% endfor %}
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>© 2026 Artisan Marketplace. All rights reserved.</p>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // English and Hindi translation
+        const languageSelect = document.getElementById("languageSelect");
+
+        function setLanguage(language) {
+            document.documentElement.lang = language;
+
+            document.querySelectorAll("[data-en][data-hi]").forEach(element => {
+                const translation = element.getAttribute(
+                    language === "hi" ? "data-hi" : "data-en"
+                );
+
+                if (translation !== null) {
+                    element.textContent = translation;
+                }
+            });
+
+            localStorage.setItem("artisanLanguage", language);
+            languageSelect.value = language;
+        }
+
+        // Restore the previously selected language
+        const savedLanguage = localStorage.getItem("artisanLanguage") || "en";
+        setLanguage(savedLanguage);
+
+        languageSelect.addEventListener("change", function () {
+            setLanguage(this.value);
+        });
+
+        // Show a preview of the selected product image
+        const imageInput = document.getElementById("image");
+        const imagePreview = document.getElementById("imagePreview");
+        const previewContainer = document.getElementById(
+            "imagePreviewContainer"
+        );
+
+        imageInput.addEventListener("change", function () {
+            const file = this.files[0];
+
+            if (!file) {
+                previewContainer.hidden = true;
+                imagePreview.src = "";
+                return;
+            }
+
+            const allowedTypes = [
+                "image/jpeg",
+                "image/png",
+                "image/webp"
+            ];
+
+            if (!allowedTypes.includes(file.type)) {
+                alert("Please select a JPG, PNG, or WebP image.");
+                this.value = "";
+                previewContainer.hidden = true;
+                return;
+            }
+
+            if (file.size > 2 * 1024 * 1024) {
+                alert("Image size must be smaller than 2 MB.");
+                this.value = "";
+                previewContainer.hidden = true;
+                return;
+            }
+
+            imagePreview.src = URL.createObjectURL(file);
+            previewContainer.hidden = false;
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Artisan Marketplace</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<style>
+    /* Product image preview popup */
+    .product-preview-modal {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        background: rgba(0, 0, 0, 0.82);
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+    }
+    .product-preview-content {
+        position: relative;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: 24px;
+        width: min(900px, 100%);
+        max-height: 90vh;
+        overflow-y: auto;
+        padding: 26px;
+        border-radius: 14px;
+        background: #fffaf4;
+        color: #493020;
+    }
+    .product-preview-content > img {
+        width: 100%;
+        max-height: 480px;
+        object-fit: contain;
+        background: #fff;
+        border-radius: 10px;
+    }
+    .preview-details h2 { color: #8b4513; margin: 8px 0 12px; }
+    .preview-details h3 { color: #b95418; margin-bottom: 20px; }
+    .preview-details p { line-height: 1.6; margin-bottom: 12px; overflow-wrap: anywhere; }
+    .preview-close {
+        position: absolute;
+        top: 8px;
+        right: 10px;
+        z-index: 1;
+        width: 40px;
+        height: 40px;
+        border: 0;
+        border-radius: 50%;
+        background: #8b4513;
+        color: white;
+        font-size: 28px;
+        cursor: pointer;
+    }
+    #productGrid .product-image img { cursor: zoom-in; }
+    @media (max-width: 650px) {
+        .product-preview-content { grid-template-columns: 1fr; padding: 18px; gap: 14px; }
+        .product-preview-content > img { max-height: 300px; }
+    }
+</style></head>
+
+<body>
+
+    <!-- Navigation Bar -->
+    <header class="navbar">
+        <a href="{{ url_for('home') }}" class="logo">
+         
+        </a>
+ 
+
+<nav>
+    <!-- Marketplace: visible to everyone -->
+    <a href="{{ url_for('home') }}"
+       class="nav-link active"
+       data-en="Marketplace"
+       data-hi="बाज़ार">
+        Marketplace
+    </a>
+
+    <!-- Artisan Studio -->
+    <a href="{{ url_for('artisan') }}"
+       class="nav-link"
+       data-en="Sell Your Products"
+       data-hi="कारीगर स्टूडियो">
+        Sell Your Products
+    </a>
+
+    <!-- Smart Pricing -->
+    <a href="{{ url_for('home') }}#pricing"
+       class="nav-link"
+       data-en="Smart Pricing"
+       data-hi="स्मार्ट मूल्य">
+        Smart Pricing
+    </a>
+
+    <!-- Orders -->
+    
+<a href="{{ url_for('my_orders') }}"
+   class="nav-link"
+   data-en="My Orders"
+   data-hi="मेरे ऑर्डर">
+   My Orders
+</a>
+
+
+
+    <!-- Account options -->
+    {% if session.get('user_id') %}
+
+        <span class="nav-link">
+            Hi, {{ session.get('user_name') }}
+        </span>
+
+        <a href="{{ url_for('logout') }}"
+           class="nav-link">
+            Logout
+        </a>
+
+    {% else %}
+
+        <a href="{{ url_for('register') }}"
+           class="nav-link">
+            Register
+        </a>
+
+        <a href="{{ url_for('login') }}"
+           class="nav-link">
+            Login
+        </a>
+
+    {% endif %}
+</nav>
+
+
+
+
+
+        <div class="nav-actions">
+            <select id="languageSelect" aria-label="Select language">
+                <option value="en">English</option>
+                <option value="hi">हिन्दी</option>
+            </select>
+            <a href="#products" class="cart-btn" data-en="Explore Crafts" data-hi="हस्तशिल्प देखें">Explore Crafts</a>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <main>
+        <section class="hero">
+            <div class="hero-content">
+                <span class="eyebrow" data-en="✦ Made by Hand, Powered by AI"
+                      data-hi="✦ हाथों से निर्मित, AI की सहायता से">✦ Made by Hand, Powered by AI</span>
+
+                <h1 data-en="Every Craft Has a Story. Every Artisan Deserves a Market."
+                    data-hi="हर हस्तशिल्प की एक कहानी है। हर कारीगर को बाज़ार मिलना चाहिए।">
+                    Every Craft Has a Story.
+                    <span>Every Artisan Deserves a Market.</span>
+                </h1>
+
+                <p data-en="Discover authentic Indian handicrafts and support the talented artisans behind every creation."
+                   data-hi="भारत के असली हस्तशिल्प खोजें और हर अनोखी रचना के पीछे के प्रतिभाशाली कारीगरों का साथ दें।">
+                    Discover authentic Indian handicrafts and support the talented artisans behind every creation.
+                </p>
+
+                <div class="hero-buttons">
+                    <a href="#products" class="btn btn-primary" data-en="Explore Marketplace →"
+                       data-hi="बाज़ार देखें →">Explore Marketplace →</a>
+                    <a href="{{ url_for('artisan') }}" class="btn btn-outline" data-en="Join as Artisan"
+                        data-hi="कारीगर के रूप में जुड़ें">Join as Artisan</a>
+                </div>
+
+                <div class="hero-stats">
+                    <div><strong>100%</strong><small data-en="Artisan Focused" data-hi="कारीगर केंद्रित">Artisan Focused</small></div>
+                    <div><strong>Made in India</strong><small data-en="Local Craftsmanship" data-hi="स्थानीय हस्तशिल्प">Local Craftsmanship</small></div>
+                    <div><strong>AI + Art</strong><small data-en="Smarter Catalogs" data-hi="बेहतर उत्पाद सूची">Smarter Catalogs</small></div>
+                </div>
+            </div>
+
+            <div class="hero-art">
+                <div class="art-circle"></div>
+                <img src="https://images.unsplash.com/photo-1493106641515-6b5631de4bb9?auto=format&fit=crop&w=900&q=85"
+                     alt="Traditional handmade Indian pottery">
+                <div class="floating-card">
+                    <span>✦</span>
+                    <div>
+                        <strong data-en="Made with care" data-hi="प्यार से निर्मित">Made with care</strong>
+                        <small data-en="Direct from artisans" data-hi="सीधे कारीगरों से">Direct from artisans</small>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Feature Strip -->
+        <section class="features">
+            <div>🎨 <span data-en="Authentic Handmade Crafts" data-hi="असली हस्तनिर्मित उत्पाद">Authentic Handmade Crafts</span></div>
+            <div>🤖 <span data-en="AI-Assisted Product Descriptions" data-hi="AI से उत्पाद विवरण">AI-Assisted Product Descriptions</span></div>
+            <div>🤝 <span data-en="Direct Artisan Connection" data-hi="सीधे कारीगरों से संपर्क">Direct Artisan Connection</span></div>
+        </section>
+
+        <!-- Marketplace -->
+        <section class="products-section" id="products">
+            <div class="section-heading">
+                <div>
+                    <span class="eyebrow" data-en="THE ARTISAN COLLECTION" data-hi="कारीगरों का संग्रह">THE ARTISAN COLLECTION</span>
+                    <h2 data-en="Crafted with Tradition" data-hi="परंपरा से निर्मित">Crafted with Tradition</h2>
+                    <p data-en="Explore unique creations made by skilled Indian artisans."
+                       data-hi="भारतीय कुशल कारीगरों द्वारा बनाए गए अनोखे उत्पाद देखें।">
+                        Explore unique creations made by skilled Indian artisans.
+                    </p>
+                </div>
+
+                <input type="search" id="searchInput"
+                       placeholder="Search crafts..."
+                       data-placeholder-en="Search crafts..."
+                       data-placeholder-hi="हस्तशिल्प खोजें..."
+                       aria-label="Search crafts">
+            </div>
+
+            <div class="categories" id="categoryButtons">
+                <button class="category active" data-category="All" data-en="All Crafts" data-hi="सभी उत्पाद">All Crafts</button>
+                <button class="category" data-category="Pottery" data-en="Pottery" data-hi="मिट्टी के बर्तन">Pottery</button>
+                <button class="category" data-category="Textiles" data-en="Textiles" data-hi="वस्त्र">Textiles</button>
+                <button class="category" data-category="Woodwork" data-en="Woodwork" data-hi="लकड़ी का काम">Woodwork</button>
+                <button class="category" data-category="Metalwork" data-en="Metalwork" data-hi="धातु शिल्प">Metalwork</button>
+            </div>
+
+            <div class="product-grid" id="productGrid"></div>
+            <p id="emptyMessage" class="empty-message" hidden>No products found. Try another search.</p>
+        </section>
+
+        <!-- Artisan Promotion -->
+        <section class="artisan-banner">
+            <div>
+                <span class="eyebrow" data-en="YOUR CRAFT. YOUR FUTURE." data-hi="आपका हुनर, आपका भविष्य।">YOUR CRAFT. YOUR FUTURE.</span>
+                <h2 data-en="Turn Your Craft into Your Opportunity."
+                    data-hi="अपने हुनर को अवसर में बदलें।">Turn Your Craft into Your Opportunity.</h2>
+                <p data-en="Create your digital catalog and help more people discover your work."
+                   data-hi="अपनी डिजिटल उत्पाद सूची बनाएँ और अधिक लोगों तक अपना काम पहुँचाएँ।">
+                    Create your digital catalog and help more people discover your work.
+                </p>
+            </div>
+          <a href="{{ url_for('artisan') }}" class="btn btn-light" data-en="Start Selling →" data-hi="बेचना शुरू करें →">Start Selling →</a>
+        </section>
+
+        <!-- Pricing Section -->
+        <section class="pricing-section" id="pricing">
+            <span class="eyebrow" data-en="FAIR PRICE, FAIR TRADE" data-hi="उचित मूल्य, उचित व्यापार">FAIR PRICE, FAIR TRADE</span>
+            <h2 data-en="Know the Value of Your Craft" data-hi="अपने हुनर का सही मूल्य जानें">Know the Value of Your Craft</h2>
+            <p data-en="Estimate a suggested selling price using your material cost, labour cost and desired margin."
+               data-hi="सामग्री की लागत, मेहनत और लाभ के आधार पर संभावित बिक्री मूल्य जानें।">
+                Estimate a suggested selling price using your material cost, labour cost and desired margin.
+            </p>
+
+            <div class="price-calculator">
+                <label for="materialCost" data-en="Material Cost (₹)" data-hi="सामग्री की लागत (₹)">Material Cost (₹)</label>
+                <input type="number" id="materialCost" min="0" value="200">
+
+                <label for="labourCost" data-en="Labour Cost (₹)" data-hi="मेहनत की लागत (₹)">Labour Cost (₹)</label>
+                <input type="number" id="labourCost" min="0" value="150">
+
+                <label for="margin" data-en="Profit Margin (%)" data-hi="लाभ प्रतिशत (%)">Profit Margin (%)</label>
+                <input type="number" id="margin" min="0" max="500" value="25">
+
+                <button class="btn btn-primary" id="calculatePrice"
+                        data-en="Calculate Suggested Price" data-hi="संभावित मूल्य निकालें">
+                    Calculate Suggested Price
+                </button>
+
+                <h3 id="priceResult">Suggested Price: ₹438</h3>
+                <small data-en="This is a cost-based estimate, not a verified market price."
+                       data-hi="यह लागत पर आधारित अनुमान है, वास्तविक बाज़ार मूल्य की पुष्टि नहीं।">
+                    This is a cost-based estimate, not a verified market price.
+                </small>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p data-en="Celebrating Indian craftsmanship through technology."
+           data-hi="तकनीक के माध्यम से भारतीय हस्तशिल्प को बढ़ावा।">
+            Celebrating Indian craftsmanship through technology.
+        </p>
+    
+<small>© 2026 Artisan Marketplace. All rights reserved.</small>
+
+    </footer>
+
+    <!-- Product Image Preview Popup -->
+<div id="productPreviewModal" class="product-preview-modal" aria-hidden="true">
+
+    <div class="product-preview-content">
+
+        <button id="closeProductPreview" class="preview-close" type="button">
+            &times;
+        </button>
+
+        <img id="previewImage" src="" alt="Product preview">
+
+        <div class="preview-details">
+            <h2 id="previewName"></h2>
+
+            <h3 id="previewPrice"></h3>
+
+            <p>
+                <strong id="previewCategoryLabel">Category:</strong>
+                <span id="previewCategory"></span>
+            </p>
+
+            <p>
+                <strong id="previewArtisanLabel">Artisan:</strong>
+                <span id="previewArtisan"></span>
+            </p>
+
+            <p>
+                <strong id="previewLocationLabel">Location:</strong>
+                <span id="previewLocation"></span>
+            </p>
+
+            <p id="previewDescription"></p>
+        </div>
+
+    </div>
+</div>
+
+   <script>
+    window.marketplaceProducts = {{ products | tojson }};
+</script>
+
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

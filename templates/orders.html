@@ -1,0 +1,485 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Orders Dashboard | Artisan Marketplace</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+    <style>
+        .orders-page {
+            min-height: 75vh;
+            padding: 45px 5%;
+            background: #faf5ed;
+        }
+
+        .orders-heading {
+            margin-bottom: 28px;
+        }
+
+        .orders-heading h1 {
+            color: #382317;
+            font-family: Georgia, serif;
+            font-size: 36px;
+            margin-bottom: 8px;
+        }
+
+        .orders-heading p {
+            color: #776b60;
+        }
+
+        .orders-summary {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 18px;
+            margin-bottom: 28px;
+        }
+
+        .summary-card {
+            background: white;
+            border: 1px solid #eee5da;
+            border-radius: 12px;
+            padding: 22px;
+        }
+
+        .summary-card p {
+            color: #776b60;
+            font-size: 14px;
+        }
+
+        .summary-card h2 {
+            color: #b95418;
+            font-size: 28px;
+            margin-top: 8px;
+        }
+
+        .orders-panel {
+            background: white;
+            border: 1px solid #eee5da;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .orders-panel-header {
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            border-bottom: 1px solid #eee5da;
+        }
+
+        .orders-panel-header h2 {
+            color: #382317;
+        }
+
+        .orders-panel-header select {
+            padding: 10px;
+            border: 1px solid #e4d8ca;
+            border-radius: 7px;
+            background: white;
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+        }
+
+        .orders-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 720px;
+        }
+
+        .orders-table th,
+        .orders-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #f0e8df;
+            font-size: 13px;
+        }
+
+        .orders-table th {
+            background: #fffaf4;
+            color: #776b60;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 6px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .status-Pending {
+            background: #fff0d4;
+            color: #966100;
+        }
+
+        .status-Processing {
+            background: #e5efff;
+            color: #285aa6;
+        }
+
+        .status-Delivered {
+            background: #dff5e6;
+            color: #267343;
+        }
+
+        .status-Cancelled {
+            background: #ffe3e3;
+            color: #a32d2d;
+        }
+
+        .status-select {
+            padding: 8px;
+            border: 1px solid #e4d8ca;
+            border-radius: 6px;
+            background: white;
+            max-width: 140px;
+        }
+
+        .update-button {
+            display: inline-block;
+            margin-top: 7px;
+            padding: 7px 12px;
+            border: none;
+            border-radius: 6px;
+            background: #b95418;
+            color: white;
+            cursor: pointer;
+        }
+
+        .empty-orders {
+            padding: 35px;
+            text-align: center;
+            color: #776b60;
+        }
+
+        .flash-message {
+            margin-bottom: 16px;
+            padding: 12px 16px;
+            border-radius: 8px;
+        }
+
+        .flash-message.success {
+            background: #e0f5e7;
+            color: #216e39;
+        }
+
+        .flash-message.error {
+            background: #ffe3e3;
+            color: #a32d2d;
+        }
+
+        @media (max-width: 650px) {
+            .orders-page {
+                padding: 30px 4%;
+            }
+
+            .orders-heading h1 {
+                font-size: 29px;
+            }
+
+            .orders-summary {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="navbar">
+
+        <a href="{{ url_for('home') }}" class="logo">
+            <span class="logo-icon">A</span>
+            <span>
+                Artisan Marketplace
+                <small>FAIR TRADE. FAIR FUTURE.</small>
+            </span>
+        </a>
+
+        <nav>
+            <a href="{{ url_for('home') }}" class="nav-link">
+                Marketplace
+            </a>
+
+            <a href="{{ url_for('artisan') }}" class="nav-link">
+                Artisan Studio
+            </a>
+
+            <a href="{{ url_for('buyer') }}" class="nav-link">
+                Buyer
+            </a>
+
+            <a href="{{ url_for('orders') }}" class="nav-link active">
+                Orders
+            </a>
+
+            {% if session.get('user_id') %}
+
+                <span class="nav-link">
+                    Hi, {{ session.get('user_name') }}
+                </span>
+
+                <a href="{{ url_for('logout') }}" class="nav-link">
+                    Logout
+                </a>
+
+            {% else %}
+
+                <a href="{{ url_for('register') }}" class="nav-link">
+                    Register
+                </a>
+
+                <a href="{{ url_for('login') }}" class="nav-link">
+                    Login
+                </a>
+
+            {% endif %}
+        </nav>
+
+    </header>
+
+    <main class="orders-page">
+
+        <div class="orders-heading">
+            <h1>Orders Dashboard</h1>
+
+            <p>
+                View actual orders placed through Artisan Marketplace
+                and update their status.
+            </p>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash-message {{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- Summary cards use real database orders -->
+
+        <section class="orders-summary">
+
+            <div class="summary-card">
+                <p>Total Orders</p>
+                <h2 id="totalOrders">{{ orders|length }}</h2>
+            </div>
+
+            <div class="summary-card">
+                <p>Active Orders</p>
+
+                <h2 id="activeOrders">
+                    {{ orders|selectattr('status', 'in', ['Pending', 'Processing'])|list|length }}
+                </h2>
+            </div>
+
+            <div class="summary-card">
+                <p>Delivered Orders</p>
+
+                <h2 id="deliveredOrders">
+                    {{ orders|selectattr('status', 'equalto', 'Delivered')|list|length }}
+                </h2>
+            </div>
+
+        </section>
+
+        <!-- Real orders from the SQLite database -->
+
+        <section class="orders-panel">
+
+            <div class="orders-panel-header">
+
+                <h2>Recent Orders</h2>
+
+                <select id="statusFilter" aria-label="Filter orders">
+                    <option value="All">All Orders</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Processing">Processing</option>
+                    <option value="Delivered">Delivered</option>
+                    <option value="Cancelled">Cancelled</option>
+                </select>
+
+            </div>
+
+            <div class="table-wrap">
+
+                <table class="orders-table">
+
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Product</th>
+                            <th>Buyer</th>
+                            <th>Quantity</th>
+                            <th>Total Amount</th>
+                            <th>Status</th>
+                            <th>Update Status</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="ordersTableBody">
+
+                        {% for order in orders %}
+
+                            <tr data-status="{{ order['status'] }}">
+
+                                <td>
+                                    <strong>#{{ order['id'] }}</strong>
+                                </td>
+
+                                <td>
+                                    {{ order['product_name'] }}
+                                </td>
+
+                                <td>
+                                    {{ order['buyer_name'] }}
+                                </td>
+
+                                <td>
+                                    {{ order['quantity'] }}
+                                </td>
+
+                                <td>
+                                    ₹{{ "%.2f"|format(order['total_price']) }}
+                                </td>
+
+                                <td>
+                                
+<td>
+    <span class="status status-{{ order['status'] }}">
+        {% if order['status'] == 'Cancelled' and order['cancelled_by'] == 'customer' %}
+            Cancelled by customer
+        {% else %}
+            {{ order['status'] }}
+        {% endif %}
+    </span>
+</td>
+
+                                </td>
+
+                                <td>
+
+                                    <form
+                                        action="{{ url_for('update_order', order_id=order['id']) }}"
+                                        method="POST"
+                                    >
+
+                                        <select
+                                            name="status"
+                                            class="status-select"
+                                            aria-label="Choose order status"
+                                        >
+
+                                            <option value="Pending"
+                                                {% if order['status'] == 'Pending' %}selected{% endif %}>
+                                                Pending
+                                            </option>
+
+                                            <option value="Processing"
+                                                {% if order['status'] == 'Processing' %}selected{% endif %}>
+                                                Processing
+                                            </option>
+
+                                            <option value="Delivered"
+                                                {% if order['status'] == 'Delivered' %}selected{% endif %}>
+                                                Delivered
+                                            </option>
+
+                                            <option value="Cancelled"
+                                                {% if order['status'] == 'Cancelled' %}selected{% endif %}>
+                                                Cancelled
+                                            </option>
+
+                                        </select>
+
+                                        <br>
+
+                                        <button type="submit" class="update-button">
+                                            Save Status
+                                        </button>
+
+                                    </form>
+
+                                </td>
+
+                            </tr>
+
+                        {% else %}
+
+                            <tr>
+                                <td colspan="7" class="empty-orders">
+                                    <h3>No Orders Yet</h3>
+
+                                    <p>
+                                        Orders placed through the marketplace
+                                        will appear here automatically.
+                                    </p>
+
+                                    <p>
+                                        <a href="{{ url_for('home') }}">
+                                            Browse Marketplace
+                                        </a>
+                                    </p>
+                                </td>
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <footer>
+        <a href="{{ url_for('home') }}" class="logo footer-logo">
+            Artisan Marketplace
+        </a>
+
+        <p>Supporting Indian artisans through technology.</p>
+
+        <small>
+            © 2026 Artisan Marketplace. All rights reserved.
+        </small>
+    </footer>
+
+    <script>
+        // Filter real database orders by their current status.
+        const statusFilter = document.getElementById("statusFilter");
+        const orderRows = document.querySelectorAll(
+            "#ordersTableBody tr[data-status]"
+        );
+
+        statusFilter.addEventListener("change", function () {
+            const selectedStatus = this.value;
+
+            orderRows.forEach(function (row) {
+                const orderStatus = row.dataset.status;
+
+                row.hidden =
+                    selectedStatus !== "All" &&
+                    selectedStatus !== orderStatus;
+            });
+        });
+    </script>
+
+</body>
+</html>
+
