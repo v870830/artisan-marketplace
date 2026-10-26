@@ -28,8 +28,13 @@ def login_required(route_function):
     return wrapper
 
 
+import os
 
-DATABASE = Path(__file__).with_name("database.db")
+# Use persistent storage on Render; use local database during development
+if os.environ.get("RENDER"):
+    DATABASE = Path("/var/data/database.db")
+else:
+    DATABASE = Path(__file__).with_name("database.db")
 
 
 # Connect to the SQLite database
