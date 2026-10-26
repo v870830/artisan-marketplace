@@ -10,3 +10,5 @@ Thumbs.db
 database.db
 database_backup.db
 app_backup.py
+database_before_deployment.db
+app_before_postgres.py
