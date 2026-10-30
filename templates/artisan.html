@@ -17,50 +17,47 @@
             <a href="{{ url_for('home') }}">Artisan Marketplace</a>
         </div>
 
-    
-<nav>
-    <a href="{{ url_for('home') }}"
-       data-en="Home" data-hi="होम">Home</a>
+        <nav>
+            <a href="{{ url_for('home') }}"
+               data-en="Home" data-hi="होम">Home</a>
 
-    <a href="{{ url_for('artisan') }}"
-       data-en="Artisan Studio"
-       data-hi="कारीगर स्टूडियो">Artisan Studio</a>
+            <a href="{{ url_for('artisan') }}"
+               data-en="Artisan Studio"
+               data-hi="कारीगर स्टूडियो">Artisan Studio</a>
 
-    <a href="{{ url_for('buyer') }}"
-       data-en="Buyer" data-hi="खरीदार">Buyer</a>
+            <a href="{{ url_for('buyer') }}"
+               data-en="Buyer" data-hi="खरीदार">Buyer</a>
 
-    <a href="{{ url_for('orders') }}"
-       data-en="Orders" data-hi="ऑर्डर">Orders</a>
+            <a href="{{ url_for('orders') }}"
+               data-en="Orders" data-hi="ऑर्डर">Orders</a>
 
-    {% if session.get('user_id') %}
+            {% if session.get('user_id') %}
 
-        <span class="nav-link">
-            Hi, {{ session.get('user_name') }}
-        </span>
+                <span class="nav-link">
+                    Hi, {{ session.get('user_name') }}
+                </span>
 
-        <a href="{{ url_for('logout') }}"
-           class="nav-link"
-           data-en="Logout" data-hi="लॉग आउट">Logout</a>
+                <a href="{{ url_for('logout') }}"
+                   class="nav-link"
+                   data-en="Logout" data-hi="लॉग आउट">Logout</a>
 
-    {% else %}
+            {% else %}
 
-        <a href="{{ url_for('register') }}"
-           class="nav-link"
-           data-en="Register" data-hi="रजिस्टर">Register</a>
+                <a href="{{ url_for('register') }}"
+                   class="nav-link"
+                   data-en="Register" data-hi="रजिस्टर">Register</a>
 
-        <a href="{{ url_for('login') }}"
-           class="nav-link"
-           data-en="Login" data-hi="लॉग इन">Login</a>
+                <a href="{{ url_for('login') }}"
+                   class="nav-link"
+                   data-en="Login" data-hi="लॉग इन">Login</a>
 
-    {% endif %}
+            {% endif %}
 
-    <select id="languageSelect" aria-label="Select language">
-        <option value="en">English</option>
-        <option value="hi">हिन्दी</option>
-    </select>
-</nav>
-
-
+            <select id="languageSelect" aria-label="Select language">
+                <option value="en">English</option>
+                <option value="hi">हिन्दी</option>
+            </select>
+        </nav>
     </header>
 
     <!-- Main Content -->
@@ -90,6 +87,7 @@
 
         <!-- Product Upload Form -->
         <section class="form-section">
+
             <h2 data-en="Publish a New Product"
                 data-hi="नया उत्पाद प्रकाशित करें">
                 Publish a New Product
@@ -101,6 +99,7 @@
                 action="{{ url_for('artisan') }}"
                 enctype="multipart/form-data">
 
+                <!-- Product Name -->
                 <div class="form-group">
                     <label for="productName"
                            data-en="Product Name"
@@ -116,6 +115,7 @@
                         required>
                 </div>
 
+                <!-- Category -->
                 <div class="form-group">
                     <label for="category"
                            data-en="Category"
@@ -124,56 +124,19 @@
                     </label>
 
                     <select id="category" name="category" required>
-                        <option value=""
-                                data-en="Select Category"
-                                data-hi="श्रेणी चुनें">
-                            Select Category
-                        </option>
+                        <option value="">Select Category</option>
 
-                        <option value="Pottery"
-                                data-en="Pottery"
-                                data-hi="मिट्टी के बर्तन">
-                            Pottery
-                        </option>
-
-                        <option value="Handicrafts"
-                                data-en="Handicrafts"
-                                data-hi="हस्तशिल्प">
-                            Handicrafts
-                        </option>
-
-                        <option value="Textiles"
-                                data-en="Textiles"
-                                data-hi="कपड़ा">
-                            Textiles
-                        </option>
-
-                        <option value="Jewellery"
-                                data-en="Jewellery"
-                                data-hi="आभूषण">
-                            Jewellery
-                        </option>
-
-                        <option value="Paintings"
-                                data-en="Paintings"
-                                data-hi="चित्रकारी">
-                            Paintings
-                        </option>
-
-                        <option value="Home Decor"
-                                data-en="Home Decor"
-                                data-hi="घर की सजावट">
-                            Home Decor
-                        </option>
-
-                        <option value="Other"
-                                data-en="Other"
-                                data-hi="अन्य">
-                            Other
-                        </option>
+                        <option value="Pottery">Pottery</option>
+                        <option value="Handicrafts">Handicrafts</option>
+                        <option value="Textiles">Textiles</option>
+                        <option value="Jewellery">Jewellery</option>
+                        <option value="Paintings">Paintings</option>
+                        <option value="Home Decor">Home Decor</option>
+                        <option value="Other">Other</option>
                     </select>
                 </div>
 
+                <!-- Price -->
                 <div class="form-group">
                     <label for="price"
                            data-en="Price (₹)"
@@ -191,6 +154,7 @@
                         required>
                 </div>
 
+                <!-- Location -->
                 <div class="form-group">
                     <label for="location"
                            data-en="Location"
@@ -206,6 +170,7 @@
                         required>
                 </div>
 
+                <!-- Artisan Name -->
                 <div class="form-group">
                     <label for="artisanName"
                            data-en="Artisan Name"
@@ -221,6 +186,24 @@
                         required>
                 </div>
 
+                <!-- AI Product Details -->
+                <div class="form-group">
+                    <label for="aiDetails">
+                        Product Details / Keywords
+                    </label>
+
+                    <textarea
+                        id="aiDetails"
+                        rows="3"
+                        placeholder="Example: Handmade bamboo lamp, eco-friendly, traditional design"></textarea>
+
+                    <small>
+                        Enter some details about your product.
+                        AI will use these details to generate a description.
+                    </small>
+                </div>
+
+                <!-- Product Description -->
                 <div class="form-group">
                     <label for="description"
                            data-en="Product Description"
@@ -232,10 +215,25 @@
                         id="description"
                         name="description"
                         rows="5"
-                        placeholder="Describe your handmade product"
+                        placeholder="Your AI-generated description will appear here. You can also edit it."
                         required></textarea>
+
+                    <!-- AI Generate Button -->
+                    <button
+                        type="button"
+                        id="generateBtn"
+                        class="btn"
+                        style="margin-top: 10px;">
+
+                        ✨ Generate AI Description
+                    </button>
+
+                    <p id="aiStatus"
+                       style="margin-top: 10px;"
+                       aria-live="polite"></p>
                 </div>
 
+                <!-- Product Image -->
                 <div class="form-group">
                     <label for="image"
                            data-en="Product Image"
@@ -250,38 +248,40 @@
                         accept=".jpg,.jpeg,.png,.webp"
                         required>
 
-                    <small
-                        data-en="Allowed formats: JPG, PNG, WebP. Maximum size: 5 MB."
-                        data-hi="मान्य प्रारूप: JPG, PNG, WebP। अधिकतम आकार: 5 MB।">
-                        Allowed formats: JPG, PNG, WebP. Maximum size: 5 MB.
+                    <small>
+                        Allowed formats: JPG, PNG, WebP.
+                        Maximum size: 2 MB.
                     </small>
 
                     <div id="imagePreviewContainer" hidden>
+
                         <img
                             id="imagePreview"
                             src=""
                             alt="Product image preview"
                             style="max-width: 220px; max-height: 220px; margin-top: 12px; object-fit: contain;">
 
-                        <p data-en="Image Preview"
-                           data-hi="तस्वीर का पूर्वावलोकन">
-                            Image Preview
-                        </p>
+                        <p>Image Preview</p>
+
                     </div>
                 </div>
 
-                <button type="submit"
-                        class="btn"
-                        data-en="Publish Product"
-                        data-hi="उत्पाद प्रकाशित करें">
+                <!-- Publish Product -->
+                <button
+                    type="submit"
+                    class="btn"
+                    data-en="Publish Product"
+                    data-hi="उत्पाद प्रकाशित करें">
+
                     Publish Product
                 </button>
 
             </form>
         </section>
 
-        <!-- Products from SQLite Database -->
+        <!-- Published Products -->
         <section class="products-section">
+
             <h2 data-en="Published Products"
                 data-hi="प्रकाशित उत्पाद">
                 Published Products
@@ -310,42 +310,37 @@
                             <h3>{{ product.name }}</h3>
 
                             <p>
-                                <strong
-                                    data-en="Category:"
-                                    data-hi="श्रेणी:">
-                                    Category:
-                                </strong>
+                                <strong>Category:</strong>
                                 {{ product.category }}
                             </p>
 
                             <p>
-                                <strong
-                                    data-en="Price:"
-                                    data-hi="कीमत:">
-                                    Price:
-                                </strong>
+                                <strong>Price:</strong>
                                 ₹{{ "%.2f"|format(product.price) }}
                             </p>
 
                             <p>
-                                <strong
-                                    data-en="Artisan:"
-                                    data-hi="कारीगर:">
-                                    Artisan:
-                                </strong>
+                                <strong>Artisan:</strong>
                                 {{ product.artisan }}
                             </p>
 
                             <p>
-                                <strong
-                                    data-en="Location:"
-                                    data-hi="स्थान:">
-                                    Location:
-                                </strong>
+                                <strong>Location:</strong>
                                 {{ product.location }}
                             </p>
 
                             <p>{{ product.description }}</p>
+
+                            <form method="POST"
+                                action="{{ url_for('delete_product', product_id=product.id) }}"
+                                onsubmit="return confirm('Are you sure you want to delete this product?');">
+
+                                <button type="submit" class="btn"
+                                        style="background-color: #dc3545;">
+                                    Delete Product
+                                </button>
+
+                            </form>
 
                         </div>
 
@@ -355,7 +350,10 @@
 
                     <p data-en="No products have been published yet. Add your first product using the form above."
                        data-hi="अभी तक कोई उत्पाद प्रकाशित नहीं हुआ है। ऊपर दिए गए फॉर्म से अपना पहला उत्पाद जोड़ें।">
-                        No products have been published yet. Add your first product using the form above.
+
+                        No products have been published yet.
+                        Add your first product using the form above.
+
                     </p>
 
                 {% endfor %}
@@ -372,13 +370,16 @@
 
     <!-- JavaScript -->
     <script>
+
         // English and Hindi translation
         const languageSelect = document.getElementById("languageSelect");
 
         function setLanguage(language) {
+
             document.documentElement.lang = language;
 
             document.querySelectorAll("[data-en][data-hi]").forEach(element => {
+
                 const translation = element.getAttribute(
                     language === "hi" ? "data-hi" : "data-en"
                 );
@@ -386,28 +387,35 @@
                 if (translation !== null) {
                     element.textContent = translation;
                 }
+
             });
 
             localStorage.setItem("artisanLanguage", language);
             languageSelect.value = language;
         }
 
-        // Restore the previously selected language
-        const savedLanguage = localStorage.getItem("artisanLanguage") || "en";
+        // Restore previously selected language
+        const savedLanguage =
+            localStorage.getItem("artisanLanguage") || "en";
+
         setLanguage(savedLanguage);
 
         languageSelect.addEventListener("change", function () {
             setLanguage(this.value);
         });
 
-        // Show a preview of the selected product image
+
+        // Product image preview
         const imageInput = document.getElementById("image");
+
         const imagePreview = document.getElementById("imagePreview");
+
         const previewContainer = document.getElementById(
             "imagePreviewContainer"
         );
 
         imageInput.addEventListener("change", function () {
+
             const file = this.files[0];
 
             if (!file) {
@@ -423,22 +431,118 @@
             ];
 
             if (!allowedTypes.includes(file.type)) {
+
                 alert("Please select a JPG, PNG, or WebP image.");
+
                 this.value = "";
                 previewContainer.hidden = true;
+
                 return;
             }
 
             if (file.size > 2 * 1024 * 1024) {
+
                 alert("Image size must be smaller than 2 MB.");
+
                 this.value = "";
                 previewContainer.hidden = true;
+
                 return;
             }
 
             imagePreview.src = URL.createObjectURL(file);
+
             previewContainer.hidden = false;
+
         });
+
+
+        // AI Product Description Generation
+        const generateBtn = document.getElementById("generateBtn");
+
+        generateBtn.addEventListener("click", async function () {
+
+            const name = document.getElementById("productName").value.trim();
+
+            const details = document.getElementById("aiDetails").value.trim();
+
+            const status = document.getElementById("aiStatus");
+
+            const description = document.getElementById("description");
+
+
+            // Validate product name and details
+            if (!name || !details) {
+
+                status.textContent =
+                    "Please enter product name and product details.";
+
+                return;
+            }
+
+
+            // Disable button while generating
+            generateBtn.disabled = true;
+
+            status.textContent =
+                "Generating AI description... Please wait.";
+
+
+            try {
+
+                // Send product information to Flask backend
+                const response = await fetch(
+                    "{{ url_for('generate_description') }}",
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+
+                        body: JSON.stringify({
+                            name: name,
+                            details: details
+                        })
+                    }
+                );
+
+
+                // Get response from Flask
+                const result = await response.json();
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        result.error || "Description generation failed."
+                    );
+
+                }
+
+
+                // Display generated description
+                description.value = result.description;
+
+                status.textContent =
+                    "AI description generated successfully! You can edit it before publishing.";
+
+
+            } catch (error) {
+
+                console.error("AI Generation Error:", error);
+
+                status.textContent = error.message;
+
+            } finally {
+
+                // Enable button again
+                generateBtn.disabled = false;
+
+            }
+
+        });
+
     </script>
 
 </body>
