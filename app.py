@@ -4,7 +4,7 @@ import base64
 import torch
 
 import psycopg
-
+import re
 from functools import wraps
 from psycopg.rows import dict_row
 from psycopg import IntegrityError
@@ -19,10 +19,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 
 
-MODEL_PATH = os.path.join(
-    os.path.dirname(__file__),
-    "flan_t5_artisan"
-)
+MODEL_PATH = "vansh870830/artisan-flan-t5"
 
 tokenizer = None
 model = None
@@ -230,50 +227,110 @@ def home():
 def generate_description():
 
     data = request.get_json(silent=True) or {}
+
     name = str(data.get("name") or "").strip()
     details = str(data.get("details") or "").strip()
 
     if not name or not details:
-        return jsonify({"error": "Enter product name and details."}), 400
+        return jsonify({
+            "error": "Enter product name and details."
+        }), 400
+
+    if len(name) > 150 or len(details) > 1500:
+        return jsonify({
+            "error": "Product details are too long."
+        }), 400
 
     try:
         tokenizer, model = load_ai_model()
 
+        # Generate description using the fine-tuned model
         prompt = (
-        f"Write an attractive and professional product description "
-        f"for an online handmade products marketplace. "
-        f"Product name: {name}. "
-        f"Product details: {details}. "
-        f"Write 2 to 3 complete sentences highlighting the product's "
-        f"features, material, quality and uses. "
-        f"Do not repeat the input. Do not add imaginary facts."
+            f"Write a short and attractive description for this handmade product. "
+            f"Product: {name}. "
+            f"Information: {details}. "
+            f"Use only the given information. "
+            f"Write clear and natural sentences. "
+            f"Avoid repeating words or sentences."
         )
 
         inputs = tokenizer(
             prompt,
             return_tensors="pt",
-            max_length=128,
+            max_length=256,
             truncation=True
         )
 
         with torch.no_grad():
             outputs = model.generate(
                 **inputs,
-                max_length=100,
+                max_new_tokens=90,
                 num_beams=4,
+                no_repeat_ngram_size=3,
+                repetition_penalty=1.5,
                 early_stopping=True
             )
 
-        description = tokenizer.decode(
+        ai_description = tokenizer.decode(
             outputs[0],
             skip_special_tokens=True
+        ).strip()
+
+        # Remove repeated sentences
+        sentences = re.split(r'(?<=[.!?])\s+', ai_description)
+
+        unique_sentences = []
+        seen = set()
+
+        for sentence in sentences:
+
+            sentence = sentence.strip()
+
+            if not sentence:
+                continue
+
+            normalized = sentence.lower()
+
+            if normalized not in seen:
+                unique_sentences.append(sentence)
+                seen.add(normalized)
+
+        ai_description = " ".join(unique_sentences)
+
+        # Avoid returning an empty AI description
+        if not ai_description:
+            ai_description = f"{name} is a handmade product."
+
+        # Extract mobile/contact numbers from original details
+        phone_numbers = re.findall(
+            r'(?<!\d)(?:\+?\d[\d\s-]{8,16}\d)(?!\d)',
+            details
         )
 
-        return jsonify({"description": description})
+        # Preserve original artisan-provided information
+        final_description = (
+            f"{ai_description}\n\n"
+            f"Product information provided by artisan:\n"
+            f"{details}"
+        )
+
+        # Add contact numbers separately for visibility
+        if phone_numbers:
+            final_description += (
+                "\n\nContact: " + ", ".join(phone_numbers)
+            )
+
+        return jsonify({
+            "description": final_description
+        })
 
     except Exception as e:
+
         print("AI Generation Error:", e)
-        return jsonify({"error": "AI description generation failed."}), 500
+
+        return jsonify({
+            "error": "AI description generation failed."
+        }), 500
 
 # Artisan Studio — each artisan sees only their own products
 @app.route("/artisan", methods=["GET", "POST"])
